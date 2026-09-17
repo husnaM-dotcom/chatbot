@@ -19,12 +19,17 @@ async function sendMessage() {
 
     addMessage(message, "user");
     messageInput.value = "";
+    showTyping();
 
     const response = await fetch(`/chat?message=${encodeURIComponent(message)}`, {
         method: "POST"
     });
 
     const data = await response.json();
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    document.getElementById("typing").remove();
 
     addMessage(data.reply, "ai");
 }
@@ -60,7 +65,7 @@ function addMessage(text, sender) {
     if (sender === "ai") {
         const icon = document.createElement("div");
         icon.classList.add("ai-icon");
-        icon.textContent = "🤖";
+        icon.textContent = "✧";
 
         message.appendChild(icon);
     }
@@ -69,5 +74,23 @@ function addMessage(text, sender) {
 
     chatBox.appendChild(message);
 
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function showTyping() {
+    const typing = document.createElement("div");
+    typing.id = "typing";
+    typing.classList.add("message", "ai-message");
+
+    typing.innerHTML = `
+        <div class="ai-icon">✧</div>
+        <div class="message-content">
+            <div class="message-bubble">
+                AI is typing...
+            </div>
+        </div>
+    `;
+
+    chatBox.appendChild(typing);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
