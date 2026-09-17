@@ -1,17 +1,25 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from dotenv import load_dotenv
 from groq import Groq
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
+templates = Jinja2Templates(directory="templates")
 
 load_dotenv()
 
 app = FastAPI()
-
+app.mount("/static", StaticFiles(directory="static"), name="static")
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 @app.get("/")
-def home():
-    return {"message": "AI Chatbot is running!"}
+def home(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html"
+    )
+    
     
 @app.post("/chat")
 def chat(message: str):
